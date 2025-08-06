@@ -16,8 +16,7 @@ import {
   Clock,
   Truck,
   X,
-  LogOut,
-  Save
+  LogOut
 } from 'lucide-react';
 import { Order, Product } from '../types';
 
@@ -26,17 +25,6 @@ interface AdminStats {
   pendingOrders: number;
   shippedOrders: number;
   totalRevenue: number;
-}
-
-interface NewProduct {
-  name: string;
-  price: number;
-  originalPrice: number;
-  image: string;
-  category: string;
-  description: string;
-  inStock: boolean;
-  featured: boolean;
 }
 
 const AdminDashboard: React.FC = () => {
@@ -53,18 +41,6 @@ const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
-  const [showProductModal, setShowProductModal] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [newProduct, setNewProduct] = useState<NewProduct>({
-    name: '',
-    price: 0,
-    originalPrice: 0,
-    image: '',
-    category: 'shirts',
-    description: '',
-    inStock: true,
-    featured: false
-  });
 
   useEffect(() => {
     // Check if user is authenticated
@@ -77,62 +53,89 @@ const AdminDashboard: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      // Load orders from localStorage
-      const savedOrders = localStorage.getItem('adminOrders');
-      let loadedOrders: Order[] = [];
-      
-      if (savedOrders) {
-        loadedOrders = JSON.parse(savedOrders).map((order: any) => ({
-          ...order,
-          createdAt: new Date(order.createdAt),
-          updatedAt: new Date(order.updatedAt)
-        }));
-      }
-
-      // Load products from localStorage
-      const savedProducts = localStorage.getItem('adminProducts');
-      let loadedProducts: Product[] = [];
-      
-      if (savedProducts) {
-        loadedProducts = JSON.parse(savedProducts);
-      } else {
-        // Default products if none exist
-        loadedProducts = [
-          {
-            _id: 'prod1',
-            name: 'Premium Cotton Shirt - Navy Blue',
-            price: 899,
-            originalPrice: 1299,
-            image: 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=400',
-            category: 'shirts',
-            description: 'High-quality cotton shirt perfect for formal and casual wear',
-            inStock: true,
-            featured: true
+      // Mock data for demo - replace with actual API calls
+      const mockOrders: Order[] = [
+        {
+          _id: 'order1',
+          customerName: 'John Doe',
+          email: 'john@example.com',
+          phone: '+91 98765 43210',
+          address: {
+            street: '123 Main St',
+            city: 'Mumbai',
+            state: 'Maharashtra',
+            pincode: '400001'
           },
-          {
-            _id: 'prod2',
-            name: 'Luxury Steel Watch - Silver',
-            price: 2499,
-            originalPrice: 3999,
-            image: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=400',
-            category: 'watches',
-            description: 'Elegant steel watch with precision movement',
-            inStock: true,
-            featured: true
-          }
-        ];
-        localStorage.setItem('adminProducts', JSON.stringify(loadedProducts));
-      }
+          items: [{
+            productId: 'prod1',
+            productName: 'Premium Cotton Shirt - Navy Blue',
+            quantity: 2,
+            price: 899
+          }],
+          totalAmount: 1798,
+          status: 'pending',
+          createdAt: new Date('2024-01-15'),
+          updatedAt: new Date('2024-01-15')
+        },
+        {
+          _id: 'order2',
+          customerName: 'Jane Smith',
+          email: 'jane@example.com',
+          phone: '+91 87654 32109',
+          address: {
+            street: '456 Oak Ave',
+            city: 'Delhi',
+            state: 'Delhi',
+            pincode: '110001'
+          },
+          items: [{
+            productId: 'prod2',
+            productName: 'Luxury Steel Watch - Silver',
+            quantity: 1,
+            price: 2499
+          }],
+          totalAmount: 2499,
+          status: 'shipped',
+          trackingId: 'TRK123456789',
+          createdAt: new Date('2024-01-14'),
+          updatedAt: new Date('2024-01-16')
+        }
+      ];
+
+      const mockProducts: Product[] = [
+        {
+          _id: 'prod1',
+          name: 'Premium Cotton Shirt - Navy Blue',
+          price: 899,
+          originalPrice: 1299,
+          image: 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=400',
+          category: 'shirts',
+          description: 'High-quality cotton shirt perfect for formal and casual wear',
+          inStock: true,
+          featured: true
+        },
+        {
+          _id: 'prod2',
+          name: 'Luxury Steel Watch - Silver',
+          price: 2499,
+          originalPrice: 3999,
+          image: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=400',
+          category: 'watches',
+          description: 'Elegant steel watch with precision movement',
+          inStock: true,
+          featured: true
+        }
+      ];
 
       const mockStats: AdminStats = {
-        totalOrders: loadedOrders.length,
-        pendingOrders: loadedOrders.filter(o => o.status === 'pending').length,
-        shippedOrders: loadedOrders.filter(o => o.status === 'shipped').length,
-        totalRevenue: loadedOrders.reduce((sum, order) => sum + order.totalAmount, 0)
+        totalOrders: mockOrders.length,
+        pendingOrders: mockOrders.filter(o => o.status === 'pending').length,
+        shippedOrders: mockOrders.filter(o => o.status === 'shipped').length,
+        totalRevenue: mockOrders.reduce((sum, order) => sum + order.totalAmount, 0)
       };
 
-      setOrders(loadedOrders);
-      setProducts(loadedProducts);
+      setOrders(mockOrders);
+      setProducts(mockProducts);
       setStats(mockStats);
       setLoading(false);
     } catch (error) {
@@ -141,28 +144,10 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const saveOrders = (updatedOrders: Order[]) => {
-    localStorage.setItem('adminOrders', JSON.stringify(updatedOrders));
-    setOrders(updatedOrders);
-    
-    // Update stats
-    const newStats = {
-      totalOrders: updatedOrders.length,
-      pendingOrders: updatedOrders.filter(o => o.status === 'pending').length,
-      shippedOrders: updatedOrders.filter(o => o.status === 'shipped').length,
-      totalRevenue: updatedOrders.reduce((sum, order) => sum + order.totalAmount, 0)
-    };
-    setStats(newStats);
-  };
-
-  const saveProducts = (updatedProducts: Product[]) => {
-    localStorage.setItem('adminProducts', JSON.stringify(updatedProducts));
-    setProducts(updatedProducts);
-  };
-
   const updateOrderStatus = async (orderId: string, status: string, trackingId?: string) => {
     try {
-      const updatedOrders = orders.map(order => 
+      // Mock API call - replace with actual implementation
+      setOrders(prev => prev.map(order => 
         order._id === orderId 
           ? { 
               ...order, 
@@ -171,82 +156,25 @@ const AdminDashboard: React.FC = () => {
               updatedAt: new Date()
             }
           : order
+      ));
+      
+      // Update stats
+      const updatedOrders = orders.map(order => 
+        order._id === orderId 
+          ? { ...order, status: status as any, trackingId: trackingId || order.trackingId }
+          : order
       );
       
-      saveOrders(updatedOrders);
+      setStats(prev => ({
+        ...prev,
+        pendingOrders: updatedOrders.filter(o => o.status === 'pending').length,
+        shippedOrders: updatedOrders.filter(o => o.status === 'shipped').length,
+      }));
+
       setShowOrderModal(false);
       setSelectedOrder(null);
     } catch (error) {
       console.error('Error updating order:', error);
-    }
-  };
-
-  const handleAddProduct = () => {
-    const productId = 'prod_' + Date.now();
-    const productToAdd: Product = {
-      _id: productId,
-      ...newProduct
-    };
-    
-    const updatedProducts = [...products, productToAdd];
-    saveProducts(updatedProducts);
-    
-    setNewProduct({
-      name: '',
-      price: 0,
-      originalPrice: 0,
-      image: '',
-      category: 'shirts',
-      description: '',
-      inStock: true,
-      featured: false
-    });
-    setShowProductModal(false);
-  };
-
-  const handleEditProduct = (product: Product) => {
-    setEditingProduct(product);
-    setNewProduct({
-      name: product.name,
-      price: product.price,
-      originalPrice: product.originalPrice || 0,
-      image: product.image,
-      category: product.category,
-      description: product.description,
-      inStock: product.inStock,
-      featured: product.featured || false
-    });
-    setShowProductModal(true);
-  };
-
-  const handleUpdateProduct = () => {
-    if (!editingProduct) return;
-    
-    const updatedProducts = products.map(product =>
-      product._id === editingProduct._id
-        ? { ...editingProduct, ...newProduct }
-        : product
-    );
-    
-    saveProducts(updatedProducts);
-    setEditingProduct(null);
-    setNewProduct({
-      name: '',
-      price: 0,
-      originalPrice: 0,
-      image: '',
-      category: 'shirts',
-      description: '',
-      inStock: true,
-      featured: false
-    });
-    setShowProductModal(false);
-  };
-
-  const handleDeleteProduct = (productId: string) => {
-    if (confirm('Are you sure you want to delete this product?')) {
-      const updatedProducts = products.filter(product => product._id !== productId);
-      saveProducts(updatedProducts);
     }
   };
 
@@ -280,20 +208,6 @@ const AdminDashboard: React.FC = () => {
     localStorage.removeItem('adminAuth');
     setIsAuthenticated(false);
   };
-
-  // Listen for new orders from checkout
-  useEffect(() => {
-    const handleNewOrder = (event: CustomEvent) => {
-      const newOrder = event.detail;
-      const updatedOrders = [...orders, newOrder];
-      saveOrders(updatedOrders);
-    };
-
-    window.addEventListener('newOrder', handleNewOrder as EventListener);
-    return () => {
-      window.removeEventListener('newOrder', handleNewOrder as EventListener);
-    };
-  }, [orders]);
 
   if (!isAuthenticated) {
     return <AdminLogin onLogin={handleLogin} />;
@@ -584,13 +498,7 @@ const AdminDashboard: React.FC = () => {
             {/* Products Header */}
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold text-gray-900">Products Management</h2>
-              <button 
-                onClick={() => {
-                  setEditingProduct(null);
-                  setShowProductModal(true);
-                }}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
+              <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <Plus className="w-4 h-4" />
                 <span>Add Product</span>
               </button>
@@ -633,17 +541,11 @@ const AdminDashboard: React.FC = () => {
                     </p>
                     
                     <div className="flex space-x-2">
-                      <button 
-                        onClick={() => handleEditProduct(product)}
-                        className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                      >
+                      <button className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                         <Edit3 className="w-4 h-4" />
                         <span>Edit</span>
                       </button>
-                      <button 
-                        onClick={() => handleDeleteProduct(product._id)}
-                        className="flex items-center space-x-1 px-3 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
-                      >
+                      <button className="flex items-center space-x-1 px-3 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors">
                         <Trash2 className="w-4 h-4" />
                         <span>Delete</span>
                       </button>
@@ -764,163 +666,6 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     )}
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Product Modal */}
-      {showProductModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-semibold text-gray-900">
-                  {editingProduct ? 'Edit Product' : 'Add New Product'}
-                </h3>
-                <button
-                  onClick={() => {
-                    setShowProductModal(false);
-                    setEditingProduct(null);
-                    setNewProduct({
-                      name: '',
-                      price: 0,
-                      originalPrice: 0,
-                      image: '',
-                      category: 'shirts',
-                      description: '',
-                      inStock: true,
-                      featured: false
-                    });
-                  }}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
-                  <input
-                    type="text"
-                    value={newProduct.name}
-                    onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter product name"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
-                    <input
-                      type="number"
-                      value={newProduct.price}
-                      onChange={(e) => setNewProduct({...newProduct, price: Number(e.target.value)})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="0"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Original Price (₹)</label>
-                    <input
-                      type="number"
-                      value={newProduct.originalPrice}
-                      onChange={(e) => setNewProduct({...newProduct, originalPrice: Number(e.target.value)})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="0"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                  <select
-                    value={newProduct.category}
-                    onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="shirts">Shirts</option>
-                    <option value="watches">Watches</option>
-                    <option value="jewelry">Jewelry</option>
-                    <option value="accessories">Accessories</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
-                  <input
-                    type="url"
-                    value={newProduct.image}
-                    onChange={(e) => setNewProduct({...newProduct, image: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="https://example.com/image.jpg"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                  <textarea
-                    value={newProduct.description}
-                    onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter product description"
-                  />
-                </div>
-
-                <div className="flex items-center space-x-6">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={newProduct.inStock}
-                      onChange={(e) => setNewProduct({...newProduct, inStock: e.target.checked})}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="ml-2 text-sm text-gray-700">In Stock</span>
-                  </label>
-                  
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={newProduct.featured}
-                      onChange={(e) => setNewProduct({...newProduct, featured: e.target.checked})}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="ml-2 text-sm text-gray-700">Featured</span>
-                  </label>
-                </div>
-
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    onClick={editingProduct ? handleUpdateProduct : handleAddProduct}
-                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
-                  >
-                    <Save className="w-4 h-4" />
-                    <span>{editingProduct ? 'Update Product' : 'Add Product'}</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowProductModal(false);
-                      setEditingProduct(null);
-                      setNewProduct({
-                        name: '',
-                        price: 0,
-                        originalPrice: 0,
-                        image: '',
-                        category: 'shirts',
-                        description: '',
-                        inStock: true,
-                        featured: false
-                      });
-                    }}
-                    className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    Cancel
-                  </button>
                 </div>
               </div>
             </div>
